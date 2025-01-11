@@ -1,6 +1,4 @@
-import { createRoot } from 'react-dom/client'
+import * as ReactDOM from 'react-dom';
 import App from './App.tsx'
 
-createRoot(document.getElementById('root')!).render(
-  <App />
-)
+ReactDOM.render(<App />, document.getElementById('root')!)

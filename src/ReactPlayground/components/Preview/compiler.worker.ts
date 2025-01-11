@@ -1,7 +1,8 @@
-import { transform } from '@babel/standalone'
+import { transform, packages } from '@babel/standalone'
 import { File, Files } from '../../PlaygroundContext'
 import { ENTRY_FILE_NAME } from '../../files'
 import { PluginObj } from '@babel/core';
+import externalMap from '../../template/externalMap';
 
 // 如果当前文件是 jsx 或者 tsx 文件，且没有引入 React，则自动引入 React
 export const beforeTransformCode = (filename: string, code: string) => {
@@ -14,17 +15,21 @@ export const beforeTransformCode = (filename: string, code: string) => {
 }
 
 export const babelTransform = (filename: string, code: string, files: Files) => {
-  let _code = beforeTransformCode(filename, code);
+  const _code = beforeTransformCode(filename, code);
   let result = ''
   try {
-    result = transform(_code, {
-    presets: ['react', 'typescript'],
-    filename,
-    plugins: [customResolver(files)],
-    retainLines: true
-    }).code!
+    result = transform(
+      _code,
+      {
+        presets: ['react', 'typescript'],
+        filename,
+        plugins: [customResolver(files)],
+        retainLines: true
+      }
+    ).code!
+    console.log('result', result);
   } catch (e) {
-      console.error('编译出错', e);
+    console.error('编译出错', e);
   }
   return result
 }
@@ -73,6 +78,33 @@ function customResolver(files: Files): PluginObj {
         visitor: {
             ImportDeclaration(path) {
               const modulePath = path.node.source.value
+              if (Object.keys(externalMap).includes(modulePath)) {
+                const pkName = externalMap[modulePath as keyof typeof externalMap]
+                let allKey = ''
+                const keys: string[] = []
+                path.node?.specifiers?.forEach(item => {
+                  if (item.local?.name) {
+                    if (item.type === "ImportDefaultSpecifier") {
+                      allKey = item.local.name
+                    }
+                    if (item.type === "ImportSpecifier") {
+                      keys.push(item.local.name)
+                    }
+                  }
+                })
+                let str = ''
+                if (allKey) {
+                    str = `const ${allKey} = window.${pkName}`
+                }
+                if (keys?.length) {
+                    str += `const { ${keys?.join(',')} } = window.${pkName}`
+                }
+
+                const astTemplate = packages.template.default.ast(str)
+                path.insertBefore(astTemplate)
+                path.remove()
+                return
+              }
               if(modulePath.startsWith('.')) {
                 const file = getModuleFile(files, modulePath)
                 if(!file) 
