@@ -1,6 +1,6 @@
-import classnames from 'classnames'
-import React, { useState, useRef, useEffect } from 'react'
 import { Popconfirm } from 'antd'
+import classnames from 'classnames'
+import React, { useEffect, useRef, useState } from 'react'
 
 import styles from './index.module.scss'
 
@@ -25,7 +25,7 @@ export const FileNameItem: React.FC<FileNameItemProps> = (props) => {
     readonly,
   } = props
 
-  const [name, setName] = useState(value);
+  const [name, setName] = useState(value)
   const [editing, setEditing] = useState(creating)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -40,11 +40,11 @@ export const FileNameItem: React.FC<FileNameItemProps> = (props) => {
     if (creating) {
       inputRef?.current?.focus()
     }
-  }, [creating]);
+  }, [creating])
 
   const hanldeInputBlur = () => {
-    setEditing(false);
-    onEditComplete(name);
+    setEditing(false)
+    onEditComplete(name)
   }
 
   return (
@@ -59,7 +59,7 @@ export const FileNameItem: React.FC<FileNameItemProps> = (props) => {
             className={styles['tabs-item-input']}
             value={name}
             onBlur={hanldeInputBlur}
-            onChange={(e) => setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
           />
         ) : (
           <>
@@ -73,24 +73,26 @@ export const FileNameItem: React.FC<FileNameItemProps> = (props) => {
               }
             </span> */}
             {
-              !readonly ? (
-                <Popconfirm
-                  title="确认删除该文件吗？"
-                  okText="确定"
-                  cancelText="取消"
-                  onConfirm={e => {
-                    e.stopPropagation();
-                    onRemove();
-                  }}
-                >
-                  <span style={{ marginLeft: 5, display: 'flex' }}>
-                    <svg width='12' height='12' viewBox='0 0 24 24'>
-                      <line stroke='#999' x1='18' y1='6' x2='6' y2='18'></line>
-                      <line stroke='#999' x1='6' y1='6' x2='18' y2='18'></line>
-                    </svg>
-                  </span>
-                </Popconfirm>
-              ) : null
+              !readonly
+                ? (
+                    <Popconfirm
+                      title="确认删除该文件吗？"
+                      okText="确定"
+                      cancelText="取消"
+                      onConfirm={(e) => {
+                        e.stopPropagation()
+                        onRemove()
+                      }}
+                    >
+                      <span style={{ marginLeft: 5, display: 'flex' }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24">
+                          <line stroke="#999" x1="18" y1="6" x2="6" y2="18"></line>
+                          <line stroke="#999" x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </span>
+                    </Popconfirm>
+                  )
+                : null
             }
           </>
         )

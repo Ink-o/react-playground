@@ -1,7 +1,7 @@
-import { createContext, useState, PropsWithChildren, useEffect } from 'react'
-import { fileName2Language } from './utils'
+import type { PropsWithChildren } from 'react'
+import { createContext, useEffect, useState } from 'react'
 import { initFiles } from './files'
-import { compress, uncompress } from './utils'
+import { compress, fileName2Language, uncompress } from './utils'
 
 export interface File {
   name: string
@@ -21,7 +21,7 @@ export interface PlaygroundContext {
   addFile: (fileName: string) => void
   removeFile: (fileName: string) => void
   updateFileName: (oldFieldName: string, newFieldName: string) => void
-  theme: Theme,
+  theme: Theme
   setTheme: (Theme: Theme) => void
 }
 
@@ -31,22 +31,22 @@ export const PlaygroundContext = createContext<PlaygroundContext>({
   selectedFileName: 'App.tsx',
 } as PlaygroundContext)
 
-const getFilesFromUrl = () => {
+function getFilesFromUrl() {
   let files: Files | undefined
   try {
     const hash = uncompress(window.location.hash.slice(1))
     files = JSON.parse(hash)
-  } catch (error) {
+  }
+  catch (error) {
     console.error(error)
   }
   return files
 }
 
-
-export const PlaygroundProvider = (props: PropsWithChildren) => {
+export function PlaygroundProvider(props: PropsWithChildren) {
   const { children } = props
   const [files, setFiles] = useState<Files>(getFilesFromUrl() || initFiles)
-  const [selectedFileName, setSelectedFileName] = useState('App.tsx');
+  const [selectedFileName, setSelectedFileName] = useState('App.tsx')
   const [theme, setTheme] = useState<Theme>('light')
 
   const addFile = (name: string) => {
@@ -64,7 +64,8 @@ export const PlaygroundProvider = (props: PropsWithChildren) => {
   }
 
   const updateFileName = (oldFieldName: string, newFieldName: string) => {
-    if (!files[oldFieldName] || newFieldName === undefined || newFieldName === null) return
+    if (!files[oldFieldName] || newFieldName === undefined || newFieldName === null)
+      return
     const { [oldFieldName]: value, ...rest } = files
     const newFile = {
       [newFieldName]: {

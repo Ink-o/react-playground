@@ -1,14 +1,18 @@
-import { strFromU8, strToU8, unzlibSync, zlibSync } from "fflate"
-import JSZip from 'jszip'
+import type { Files } from './PlaygroundContext'
+import { strFromU8, strToU8, unzlibSync, zlibSync } from 'fflate'
 import { saveAs } from 'file-saver'
-import { Files } from './PlaygroundContext'
+import JSZip from 'jszip'
 
-export const fileName2Language = (name: string) => {
+export function fileName2Language(name: string) {
   const suffix = name.split('.').pop() || ''
-  if (['js', 'jsx'].includes(suffix)) return 'javascript'
-  if (['ts', 'tsx'].includes(suffix)) return 'typescript'
-  if (['json'].includes(suffix)) return 'json'
-  if (['css'].includes(suffix)) return 'css'
+  if (['js', 'jsx'].includes(suffix))
+    return 'javascript'
+  if (['ts', 'tsx'].includes(suffix))
+    return 'typescript'
+  if (['json'].includes(suffix))
+    return 'json'
+  if (['css'].includes(suffix))
+    return 'css'
   return 'javascript'
 }
 

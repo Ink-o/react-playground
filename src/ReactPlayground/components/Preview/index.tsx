@@ -1,12 +1,12 @@
-import { useContext, useEffect, useRef, useState } from "react"
-import { PlaygroundContext } from "../../PlaygroundContext"
-import iframeRaw from './iframe.html?raw'
-import { IMPORT_MAP_FILE_NAME } from "../../files";
-import { Message } from "../Message";
-import CompilerWorker from './compiler.worker?worker'
-import { debounce } from 'lodash-es'
+import MonacoEditor from '@monaco-editor/react'
 import classnames from 'classnames'
-import MonacoEditor, { OnMount, EditorProps } from '@monaco-editor/react'
+import { debounce } from 'lodash-es'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { IMPORT_MAP_FILE_NAME } from '../../files'
+import { PlaygroundContext } from '../../PlaygroundContext'
+import { Message } from '../Message'
+import CompilerWorker from './compiler.worker?worker'
+import iframeRaw from './iframe.html?raw'
 
 interface MessageData {
   data: {
@@ -17,7 +17,7 @@ interface MessageData {
 
 export default function Preview() {
   const { files } = useContext(PlaygroundContext)
-  console.log('files: ', files);
+  console.log('files: ', files)
   const [selectedTab, setSelectedTab] = useState('preview')
 
   // 更换 iframe 中的代码，并且生成 blob url
@@ -26,7 +26,7 @@ export default function Preview() {
     const res = iframeRaw.replace(
       '<script type="importmap"></script>',
       `<script type="importmap">${files[IMPORT_MAP_FILE_NAME].value
-      }</script>`
+      }</script>`,
     ).replace(
       '<script type="module" id="appSrc"></script>',
       `<script type="module" id="appSrc">${compiledCode}</script>`,
@@ -35,31 +35,32 @@ export default function Preview() {
   }
 
   const [compiledCode, setCompiledCode] = useState('')
-  const [iframeUrl, setIframeUrl] = useState(getIframeUrl());
+  const [iframeUrl, setIframeUrl] = useState(getIframeUrl())
 
-  const compilerWorkerRef = useRef<Worker>();
+  const compilerWorkerRef = useRef<Worker>()
 
   // 使用 worker 优化编译速度
   useEffect(() => {
     if (!compilerWorkerRef.current) {
-      compilerWorkerRef.current = new CompilerWorker();
+      compilerWorkerRef.current = new CompilerWorker()
       compilerWorkerRef.current.addEventListener('message', ({ data }) => {
         if (data.type === 'COMPILED_CODE') {
-          setCompiledCode(data.data);
-        } else {
-          //console.log('error', data);
+          setCompiledCode(data.data)
+        }
+        else {
+          // console.log('error', data);
         }
       })
     }
-  }, []);
+  }, [])
 
   useEffect(debounce(() => {
     compilerWorkerRef.current?.postMessage(files)
-  }, 500), [files]);
+  }, 500), [files])
 
   useEffect(() => {
     setIframeUrl(getIframeUrl())
-  }, [files[IMPORT_MAP_FILE_NAME].value, compiledCode]);
+  }, [files[IMPORT_MAP_FILE_NAME].value, compiledCode])
 
   const [error, setError] = useState('')
 
@@ -83,48 +84,50 @@ export default function Preview() {
     },
     {
       label: 'JS',
-    }
+    },
   ]
 
-  return <div style={{ height: '100%' }}>
-    <div className="flex h-[38px] items-center">
-      {previewList.map((item, index) => (
-        <div
-          className={classnames('p-[5px]', 'text-[13px]', 'cursor-pointer border-b-[4px]  border-transparent', selectedTab === item.label ? 'border-themeColor' : null)}
-          key={index}
-          onClick={() => { setSelectedTab(item.label) }}
-        >
-          {item.label}
-        </div>
-      ))}
+  return (
+    <div style={{ height: '100%' }}>
+      <div className="flex h-[38px] items-center">
+        {previewList.map((item, index) => (
+          <div
+            className={classnames('p-[5px]', 'text-[13px]', 'cursor-pointer border-b-[4px]  border-transparent', selectedTab === item.label ? 'border-themeColor' : null)}
+            key={index}
+            onClick={() => { setSelectedTab(item.label) }}
+          >
+            {item.label}
+          </div>
+        ))}
+      </div>
+      <iframe
+        className={classnames(
+          selectedTab === 'preview' ? 'block' : 'hidden',
+          'w-full',
+          'h-full',
+          'p-0',
+          'border-none',
+        )}
+        src={iframeUrl}
+      />
+      <MonacoEditor
+        className={
+          selectedTab === 'JS' ? 'block' : 'hidden'
+        }
+        value={compiledCode}
+        language="javascript"
+        options={{
+          readOnly: true,
+          minimap: {
+            enabled: false,
+          },
+          scrollbar: {
+            verticalScrollbarSize: 6,
+            horizontalScrollbarSize: 6,
+          },
+        }}
+      />
+      <Message type="error" content={error} />
     </div>
-    <iframe
-      className={classnames(
-        selectedTab === 'preview' ? 'block' : 'hidden',
-        'w-full',
-        'h-full',
-        'p-0',
-        'border-none'
-      )}
-      src={iframeUrl}
-    />
-    <MonacoEditor
-      className={
-        selectedTab === 'JS' ? 'block' : 'hidden'
-      }
-      value={compiledCode}
-      language='javascript'
-      options={{
-        readOnly: true,
-        minimap: {
-          enabled: false,
-        },
-        scrollbar: {
-          verticalScrollbarSize: 6,
-          horizontalScrollbarSize: 6,
-        },
-      }}
-    />
-    <Message type='error' content={error} />
-  </div>
+  )
 }

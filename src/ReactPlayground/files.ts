@@ -1,7 +1,7 @@
-import { Files } from './PlaygroundContext'
-import importMap from './template/import-map.json?raw'
+import type { Files } from './PlaygroundContext'
 import AppCss from './template/App.css?raw'
 import App from './template/App.tsx?raw'
+import importMap from './template/import-map.json?raw'
 import main from './template/main.tsx?raw'
 import { fileName2Language } from './utils'
 

@@ -1,9 +1,8 @@
-import ReactPlayground from './ReactPlayground';
-import { PlaygroundProvider } from './ReactPlayground/PlaygroundContext';
+import ReactPlayground from './ReactPlayground'
+import { PlaygroundProvider } from './ReactPlayground/PlaygroundContext'
 import './App.css'
 
 function App() {
-
   return (
     <PlaygroundProvider>
       <ReactPlayground />
@@ -12,4 +11,3 @@ function App() {
 }
 
 export default App
-

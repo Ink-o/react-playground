@@ -1,8 +1,8 @@
-import React, { useContext } from "react";
-import Editor from "./Editor";
-import FileNameList from "./FileNameList";
-import { PlaygroundContext } from "../../PlaygroundContext";
 import { debounce } from 'lodash-es'
+import React, { useContext } from 'react'
+import { PlaygroundContext } from '../../PlaygroundContext'
+import Editor from './Editor'
+import FileNameList from './FileNameList'
 
 export default function CodeEditor() {
   const {
@@ -12,11 +12,10 @@ export default function CodeEditor() {
     selectedFileName,
   } = useContext(PlaygroundContext)
 
-  const file = files[selectedFileName];
-
+  const file = files[selectedFileName]
 
   function onEditorChange(value?: string) {
-    console.log('文件更改...');
+    console.log('文件更改...')
     files[file.name].value = value!
     setFiles({ ...files })
   }
@@ -24,9 +23,13 @@ export default function CodeEditor() {
   return (
     <div style={{ position: 'relative', height: '100%' }}>
       <FileNameList />
-      <Editor file={file} onChange={debounce(onEditorChange, 500)} options={{
-        theme: `vs-${theme}`
-      }} />
+      <Editor
+        file={file}
+        onChange={debounce(onEditorChange, 500)}
+        options={{
+          theme: `vs-${theme}`,
+        }}
+      />
     </div>
   )
 }

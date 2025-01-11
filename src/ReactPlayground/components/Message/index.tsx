@@ -16,12 +16,14 @@ export const Message: React.FC<MessageProps> = (props) => {
     setVisible(!!content)
   }, [content])
 
-  return visible ? (
-    <div className={classnames(styles.msg, styles[type])}>
-      <pre dangerouslySetInnerHTML={{ __html: content }}></pre>
-      <button className={styles.dismiss} onClick={() => setVisible(false)}>
-        ✕
-      </button>
-    </div>
-  ) : null
+  return visible
+    ? (
+        <div className={classnames(styles.msg, styles[type])}>
+          <pre dangerouslySetInnerHTML={{ __html: content }}></pre>
+          <button className={styles.dismiss} onClick={() => setVisible(false)}>
+            ✕
+          </button>
+        </div>
+      )
+    : null
 }
