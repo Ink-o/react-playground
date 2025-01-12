@@ -4,10 +4,8 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Preview</title>
-    <link rel="stylesheet" href="https://unpkg.com/antd@4.21.5/dist/antd.min.css">
-    <script src="https://unpkg.com/react@17.0.2/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/antd@4.21.5"></script>
+    {linkExternal}
+    {scriptExternal}
   </head>
   <body>
     <script>
@@ -15,8 +13,8 @@
         window.parent.postMessage({ type: 'ERROR', message: e.message });
       })
     </script>
-    <script type="importmap"></script>
-    <script type="module" id="appSrc"></script>
+    {importmap}
+    {scriptModule}
     <div id="root"></div>
   </body>
 </html>

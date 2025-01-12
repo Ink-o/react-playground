@@ -1,27 +1,40 @@
 import type { Files } from './PlaygroundContext'
 import AppCss from './template/App.css?raw'
 import App from './template/App.tsx?raw'
+import externalMap from './template/externalMap.json?raw'
 import importMap from './template/import-map.json?raw'
 import main from './template/main.tsx?raw'
 import { fileName2Language } from './utils'
 
-// app 文件名
-export const APP_COMPONENT_FILE_NAME = 'App.tsx'
-// esm 模块映射文件名
-export const IMPORT_MAP_FILE_NAME = 'import-map.json'
-// app 入口文件名
-export const ENTRY_FILE_NAME = 'main.tsx'
+export enum FILE_NAME_MAP {
+  /** app 文件名 */
+  APP_COMPONENT_FILE_NAME = 'App.tsx',
+  /** esm 模块映射文件名 */
+  IMPORT_MAP_FILE_NAME = 'import-map.json',
+  /** app 入口文件名 */
+  ENTRY_FILE_NAME = 'main.tsx',
+  /** external 资源 */
+  EXTERNAL_NAME = 'externalMap.json',
+}
+
+export interface ExternalMap {
+  [k: string]: {
+    var: string
+    scriptUrl: string[]
+    styleUrl?: string[]
+  }
+}
 
 // 下面的 value 是文件字符串内容
 export const initFiles: Files = {
-  [ENTRY_FILE_NAME]: {
-    name: ENTRY_FILE_NAME,
-    language: fileName2Language(ENTRY_FILE_NAME),
+  [FILE_NAME_MAP.ENTRY_FILE_NAME]: {
+    name: FILE_NAME_MAP.ENTRY_FILE_NAME,
+    language: fileName2Language(FILE_NAME_MAP.ENTRY_FILE_NAME),
     value: main,
   },
-  [APP_COMPONENT_FILE_NAME]: {
-    name: APP_COMPONENT_FILE_NAME,
-    language: fileName2Language(APP_COMPONENT_FILE_NAME),
+  [FILE_NAME_MAP.APP_COMPONENT_FILE_NAME]: {
+    name: FILE_NAME_MAP.APP_COMPONENT_FILE_NAME,
+    language: fileName2Language(FILE_NAME_MAP.APP_COMPONENT_FILE_NAME),
     value: App,
   },
   'App.css': {
@@ -29,9 +42,14 @@ export const initFiles: Files = {
     language: 'css',
     value: AppCss,
   },
-  [IMPORT_MAP_FILE_NAME]: {
-    name: IMPORT_MAP_FILE_NAME,
-    language: fileName2Language(IMPORT_MAP_FILE_NAME),
+  [FILE_NAME_MAP.IMPORT_MAP_FILE_NAME]: {
+    name: FILE_NAME_MAP.IMPORT_MAP_FILE_NAME,
+    language: fileName2Language(FILE_NAME_MAP.IMPORT_MAP_FILE_NAME),
     value: importMap,
+  },
+  [FILE_NAME_MAP.EXTERNAL_NAME]: {
+    name: FILE_NAME_MAP.EXTERNAL_NAME,
+    language: fileName2Language(FILE_NAME_MAP.EXTERNAL_NAME),
+    value: externalMap,
   },
 }

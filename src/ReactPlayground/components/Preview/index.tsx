@@ -1,8 +1,9 @@
+import type { ExternalMap } from '../../files'
 import MonacoEditor from '@monaco-editor/react'
 import classnames from 'classnames'
 import { debounce } from 'lodash-es'
-import { useContext, useEffect, useRef, useState } from 'react'
-import { IMPORT_MAP_FILE_NAME } from '../../files'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { FILE_NAME_MAP } from '../../files'
 import { PlaygroundContext } from '../../PlaygroundContext'
 import { Message } from '../Message'
 import CompilerWorker from './compiler.worker?worker'
@@ -16,41 +17,82 @@ interface MessageData {
 }
 
 export default function Preview() {
-  const { files } = useContext(PlaygroundContext)
-  console.log('files: ', files)
+  const { files, selectedFileName } = useContext(PlaygroundContext)
   const [selectedTab, setSelectedTab] = useState('preview')
+  const [compileResMap, setCompileResMap] = useState<Map<string, string>>(new Map())
+  const [compiledCode, setCompiledCode] = useState('')
+  const compilerWorkerRef = useRef<Worker>()
+  const [iframeUrl, setIframeUrl] = useState('')
+  const [error, setError] = useState('')
+
+  const externalSource = useMemo(() => {
+    let linkExternal = ''
+    let scriptExternal = ''
+
+    const externalObj = JSON.parse(files[FILE_NAME_MAP.EXTERNAL_NAME].value) as ExternalMap
+    Object.entries(externalObj).forEach(([_, v]) => {
+      if (v.scriptUrl) {
+        scriptExternal += `
+          <script src="${v.scriptUrl}"></script>
+        `
+      }
+      if (v.styleUrl) {
+        linkExternal += `
+          <link rel="stylesheet" href="${v.styleUrl}">
+        `
+      }
+    })
+
+    return {
+      linkExternal,
+      scriptExternal,
+    }
+  }, [files[FILE_NAME_MAP.EXTERNAL_NAME]])
 
   // 更换 iframe 中的代码，并且生成 blob url
   // 编译出来的代码直接放到 iframe 中的 script module 中即可
   const getIframeUrl = () => {
     const res = iframeRaw.replace(
-      '<script type="importmap"></script>',
-      `<script type="importmap">${files[IMPORT_MAP_FILE_NAME].value
+      '{importmap}',
+      `<script type="importmap">${files[FILE_NAME_MAP.IMPORT_MAP_FILE_NAME].value
       }</script>`,
-    ).replace(
-      '<script type="module" id="appSrc"></script>',
-      `<script type="module" id="appSrc">${compiledCode}</script>`,
     )
+      .replace(
+        '{scriptModule}',
+        `<script type="module" id="appSrc">${compiledCode}</script>`,
+      )
+      .replace('{linkExternal}', externalSource.linkExternal)
+      .replace('{scriptExternal}', externalSource.scriptExternal)
+
     return URL.createObjectURL(new Blob([res], { type: 'text/html' }))
   }
 
-  const [compiledCode, setCompiledCode] = useState('')
-  const [iframeUrl, setIframeUrl] = useState(getIframeUrl())
-
-  const compilerWorkerRef = useRef<Worker>()
+  // 监听 iframe 错误信息
+  const handleMessage = (msg: MessageData) => {
+    const { type, message } = msg.data
+    if (type === 'ERROR') {
+      setError(message)
+    }
+  }
 
   // 使用 worker 优化编译速度
   useEffect(() => {
+    setIframeUrl(getIframeUrl())
+    window.addEventListener('message', handleMessage)
     if (!compilerWorkerRef.current) {
       compilerWorkerRef.current = new CompilerWorker()
       compilerWorkerRef.current.addEventListener('message', ({ data }) => {
         if (data.type === 'COMPILED_CODE') {
-          setCompiledCode(data.data)
+          setCompiledCode(data.data.compileResMap.get(FILE_NAME_MAP.ENTRY_FILE_NAME))
+          setCompileResMap(data.data.compileResMap)
         }
         else {
           // console.log('error', data);
         }
       })
+    }
+    return () => {
+      window.removeEventListener('message', handleMessage)
     }
   }, [])
 
@@ -60,23 +102,7 @@ export default function Preview() {
 
   useEffect(() => {
     setIframeUrl(getIframeUrl())
-  }, [files[IMPORT_MAP_FILE_NAME].value, compiledCode])
-
-  const [error, setError] = useState('')
-
-  const handleMessage = (msg: MessageData) => {
-    const { type, message } = msg.data
-    if (type === 'ERROR') {
-      setError(message)
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener('message', handleMessage)
-    return () => {
-      window.removeEventListener('message', handleMessage)
-    }
-  }, [])
+  }, [files[FILE_NAME_MAP.IMPORT_MAP_FILE_NAME].value, compiledCode])
 
   const previewList = [
     {
@@ -114,7 +140,7 @@ export default function Preview() {
         className={
           selectedTab === 'JS' ? 'block' : 'hidden'
         }
-        value={compiledCode}
+        value={compileResMap.get(selectedFileName) || ''}
         language="javascript"
         options={{
           readOnly: true,

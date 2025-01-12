@@ -1,8 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
-import { APP_COMPONENT_FILE_NAME, ENTRY_FILE_NAME, IMPORT_MAP_FILE_NAME } from '../../../files'
+import { FILE_NAME_MAP } from '../../../files'
 import { PlaygroundContext } from '../../../PlaygroundContext'
 import { FileNameItem } from './FileNameItem'
-import styles from './index.module.scss'
 
 export default function FileNameList() {
   const {
@@ -16,7 +15,12 @@ export default function FileNameList() {
 
   const [tabs, setTabs] = useState([''])
   // 不可编辑组件
-  const readonlyFileNames = [ENTRY_FILE_NAME, IMPORT_MAP_FILE_NAME, APP_COMPONENT_FILE_NAME]
+  const readonlyFileNames = [
+    FILE_NAME_MAP.ENTRY_FILE_NAME,
+    FILE_NAME_MAP.IMPORT_MAP_FILE_NAME,
+    FILE_NAME_MAP.APP_COMPONENT_FILE_NAME,
+    FILE_NAME_MAP.EXTERNAL_NAME,
+  ]
 
   useEffect(() => {
     setTabs(Object.keys(files))
@@ -37,11 +41,11 @@ export default function FileNameList() {
 
   const handleRemove = (name: string) => {
     removeFile(name)
-    setSelectedFileName(ENTRY_FILE_NAME)
+    setSelectedFileName(FILE_NAME_MAP.ENTRY_FILE_NAME)
   }
 
   return (
-    <div className={styles.tabs}>
+    <div className="flex items-center h-[38px] overflow-x-auto overflow-y-hidden border-b-[1px] border-solid border-[#ddd] text-[--text] bg-[--bg] box-border scrollbar-custom">
       {
         tabs.map((item, index) => (
           <FileNameItem
@@ -57,7 +61,7 @@ export default function FileNameList() {
           </FileNameItem>
         ))
       }
-      <div className={styles.add} onClick={addTab}>
+      <div className="cursor-pointer" onClick={addTab}>
         +
       </div>
     </div>

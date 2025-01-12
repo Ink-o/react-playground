@@ -5,7 +5,6 @@ import Header from './components/Header'
 import Preview from './components/Preview'
 import { PlaygroundContext } from './PlaygroundContext'
 import 'allotment/dist/style.css'
-import './index.scss'
 
 export default function ReactPlayground() {
   const {
@@ -13,7 +12,7 @@ export default function ReactPlayground() {
   } = useContext(PlaygroundContext)
 
   return (
-    <div className={theme} style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className={`${theme} h-screen flex flex-col dark:text-[#fff] dark:bg-[#1a1a1a] text-[#444] bg-[#fff]`}>
       <Header />
       <div style={{ flex: 1 }}>
         <Allotment defaultSizes={[100, 100]}>

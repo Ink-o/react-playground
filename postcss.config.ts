@@ -2,8 +2,9 @@ import process from 'node:process'
 
 export default {
   plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
+    'postcss-import': {},
+    'tailwindcss': {},
+    'autoprefixer': {},
     ...(process.env.NODE_ENV === 'production' ? { cssnano: {} } : {}),
   },
 }

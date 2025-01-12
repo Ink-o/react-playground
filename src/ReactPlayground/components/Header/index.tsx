@@ -5,40 +5,37 @@ import { useContext } from 'react'
 import { PlaygroundContext } from '../../PlaygroundContext'
 import { downloadFiles } from '../../utils'
 import logoSvg from './icons/logo.svg'
-import styles from './index.module.scss'
 
 export default function Header() {
   const { theme, setTheme, files } = useContext(PlaygroundContext)
   return (
-    <div className={styles.header}>
-      <div className={styles.logo}>
-        <img alt="logo" src={logoSvg} />
+    <div className="h-[50px] py-0 px-[20px] flex items-center justify-between bg-[--bg] text-[--text]">
+      <div className="flex tx-[20px] items-center">
+        <img className="h-[24px] mr-[10px]" alt="logo" src={logoSvg} />
         <span>Inkk Playground</span>
       </div>
-      <div className={styles.links}>
+      <div>
         {theme === 'light' && (
           <MoonOutlined
             title="切换暗色主题"
-            className={styles.theme}
             onClick={() => setTheme('dark')}
           />
         )}
         {theme === 'dark' && (
           <SunOutlined
             title="切换亮色主题"
-            className={styles.theme}
             onClick={() => setTheme('light')}
           />
         )}
         <ShareAltOutlined
-          style={{ marginLeft: '10px' }}
+          className="ml-[10px]"
           onClick={() => {
             copy(window.location.href)
             message.success('分享链接已复制。')
           }}
         />
         <DownloadOutlined
-          style={{ marginLeft: '10px' }}
+          className="ml-[10px]"
           onClick={async () => {
             await downloadFiles(files)
             message.success('下载完成')
