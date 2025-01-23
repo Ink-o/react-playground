@@ -1,3 +1,4 @@
+import path from 'node:path'
 import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
 import { viteExternalsPlugin } from 'vite-plugin-externals'
@@ -12,4 +13,9 @@ export default defineConfig({
       'react-dom': 'ReactDOM',
     }),
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
 })

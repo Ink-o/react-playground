@@ -15,7 +15,6 @@ export default function CodeEditor() {
   const file = files[selectedFileName]
 
   function onEditorChange(value?: string) {
-    console.log('文件更改...')
     files[file.name].value = value!
     setFiles({ ...files })
   }

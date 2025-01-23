@@ -22,7 +22,7 @@ export default function Preview() {
   const [compileResMap, setCompileResMap] = useState<Map<string, string>>(new Map())
   const [compiledCode, setCompiledCode] = useState('')
   const compilerWorkerRef = useRef<Worker>()
-  const [iframeUrl, setIframeUrl] = useState('')
+  const [iframeSrcDoc, setIframeSrcDoc] = useState('')
   const [error, setError] = useState('')
 
   const externalSource = useMemo(() => {
@@ -51,7 +51,7 @@ export default function Preview() {
 
   // 更换 iframe 中的代码，并且生成 blob url
   // 编译出来的代码直接放到 iframe 中的 script module 中即可
-  const getIframeUrl = () => {
+  const getIframeSrcDoc = () => {
     const res = iframeRaw.replace(
       '{importmap}',
       `<script type="importmap">${files[FILE_NAME_MAP.IMPORT_MAP_FILE_NAME].value
@@ -64,7 +64,7 @@ export default function Preview() {
       .replace('{linkExternal}', externalSource.linkExternal)
       .replace('{scriptExternal}', externalSource.scriptExternal)
 
-    return URL.createObjectURL(new Blob([res], { type: 'text/html' }))
+    return res
   }
 
   // 监听 iframe 错误信息
@@ -77,7 +77,7 @@ export default function Preview() {
 
   // 使用 worker 优化编译速度
   useEffect(() => {
-    setIframeUrl(getIframeUrl())
+    setIframeSrcDoc(getIframeSrcDoc())
     window.addEventListener('message', handleMessage)
     if (!compilerWorkerRef.current) {
       compilerWorkerRef.current = new CompilerWorker()
@@ -97,11 +97,13 @@ export default function Preview() {
   }, [])
 
   useEffect(debounce(() => {
+    // 文件内容更新后错误清除
+    setError('')
     compilerWorkerRef.current?.postMessage(files)
   }, 500), [files])
 
   useEffect(() => {
-    setIframeUrl(getIframeUrl())
+    setIframeSrcDoc(getIframeSrcDoc())
   }, [files[FILE_NAME_MAP.IMPORT_MAP_FILE_NAME].value, compiledCode])
 
   const previewList = [
@@ -134,7 +136,7 @@ export default function Preview() {
           'p-0',
           'border-none',
         )}
-        src={iframeUrl}
+        srcDoc={iframeSrcDoc}
       />
       <MonacoEditor
         className={

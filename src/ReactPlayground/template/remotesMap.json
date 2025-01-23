@@ -1,0 +1,7 @@
+{
+  "hy_mf_pc": {
+    "url": "https://hy-static-pre.intra.xiaojukeji.com/hy-compo/remoteEntry.js",
+    "format": "var",
+    "from": "webpack"
+  }
+}

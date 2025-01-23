@@ -1,10 +1,10 @@
+import logoSvg from '@/icons/logo.svg'
 import { DownloadOutlined, MoonOutlined, ShareAltOutlined, SunOutlined } from '@ant-design/icons'
 import { message } from 'antd'
 import copy from 'copy-to-clipboard'
 import { useContext } from 'react'
 import { PlaygroundContext } from '../../PlaygroundContext'
 import { downloadFiles } from '../../utils'
-import logoSvg from './icons/logo.svg'
 
 export default function Header() {
   const { theme, setTheme, files } = useContext(PlaygroundContext)

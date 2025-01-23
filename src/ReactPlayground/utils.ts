@@ -41,3 +41,13 @@ export async function downloadFiles(files: Files) {
   const blob = await zip.generateAsync({ type: 'blob' })
   saveAs(blob, `code${Math.random().toString().slice(2, 8)}.zip`)
 }
+
+export function JSONParse(str: string) {
+  try {
+    return JSON.parse(str)
+  }
+  catch (error) {
+    console.error('json 解析错误', error)
+    return {}
+  }
+}

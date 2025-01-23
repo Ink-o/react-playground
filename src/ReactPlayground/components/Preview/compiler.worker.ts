@@ -4,8 +4,10 @@ import type { ExternalMap } from '../../files'
 import type { File, Files } from '../../PlaygroundContext'
 import { packages, transform } from '@babel/standalone'
 import { FILE_NAME_MAP } from '../../files'
+import federationDep from '../../template/federationMethod.js?raw'
 
 const compileResMap = new Map()
+const remotesInjectedList = new Set()
 
 // 如果当前文件是 jsx 或者 tsx 文件，且没有引入 React，则自动引入 React
 export function beforeTransformCode(filename: string, code: string) {
@@ -27,7 +29,16 @@ export function babelTransform(filename: string, code: string, files: Files) {
         presets: ['react', 'typescript'],
         filename,
         plugins: [customResolver(files)],
-        retainLines: true,
+        // retainLines: true,
+        parserOpts: {
+          attachComment: true,
+          tokens: true,
+        },
+        // 生成器选项
+        generatorOpts: {
+          // 可以设置生成代码的紧凑程度，false 表示不紧凑，更易读
+          compact: false,
+        },
       },
     ).code!
   }
@@ -103,23 +114,66 @@ function externalHandle(externalObj: ExternalMap, path: NodePath<ImportDeclarati
   path.remove()
 }
 
+function remotesHandle({ modulePath, remoteConfig, path, hasRuntime }: { modulePath: string, remoteConfig: File, hasRuntime: boolean, path: NodePath<ImportDeclaration> }) {
+  if (!hasRuntime) {
+    // 保持原始字符串中的换行和空格
+    const dep = federationDep.replace('`{remoteMap}`', remoteConfig.value)
+    console.log('dep: ', dep)
+
+    // 直接将字符串传入 Babel 的 AST 解析器
+    const astTemplate = packages.template.default.ast(dep)
+    // console.log('astTemplate: ', packages.generator.default(astTemplate).code)
+    // path.replaceWithMultiple(astTemplate)
+    path.insertBefore(astTemplate)
+  }
+
+  const splitArr = modulePath.split('/')
+  const reqPath = `./${splitArr.slice(1).join('/')}`
+  const varName = path.node?.specifiers?.[0].local.name
+  const astTemplate = packages.template.default.ast(`
+    const __${varName} = await __federation_method_getRemote("${splitArr[0]}" , "${reqPath}")
+    const ${varName} = __federation_method_unwrapDefault(__${varName})  
+  `)
+  path.insertBefore(astTemplate)
+  path.remove()
+}
+
 function customResolver(files: Files): PluginObj {
-  let externalObj = {}
-  try {
-    externalObj = JSON.parse(files[FILE_NAME_MAP.EXTERNAL_NAME].value) || {}
-  }
-  catch (error) {
-    console.error('json 解析错误', error)
-  }
+  const externalObj = files[FILE_NAME_MAP.EXTERNAL_NAME].jsObject || {}
+  const remoteConfig = files[FILE_NAME_MAP.REMOTES_NAME] || {}
+  let filename: string = ''
   return {
     visitor: {
+      Program: {
+        enter(_, state) {
+          if (state.file.opts.filename) {
+            // 获取文件名
+            filename = state.file.opts.filename
+          }
+        },
+        exit() {
+          remotesInjectedList.delete(filename)
+        },
+      },
       ImportDeclaration(path) {
         const modulePath = path.node.source.value
         // 处理 external
-        if (Object.keys(externalObj).includes(modulePath)) {
-          externalHandle(externalObj, path)
+        if (externalObj[modulePath as keyof typeof externalObj]) {
+          externalHandle(externalObj as ExternalMap, path)
           return
         }
+        // 处理 remotes
+        if (remoteConfig.jsObject?.[modulePath?.split('/')?.[0] as keyof typeof remoteConfig.jsObject]) {
+          console.log('检测到模块联邦')
+          remotesHandle({
+            modulePath,
+            remoteConfig,
+            path,
+            hasRuntime: remotesInjectedList.has(filename),
+          })
+          remotesInjectedList.add(filename)
+        }
+
         if (modulePath.startsWith('.')) {
           const file = getModuleFile(files, modulePath)
           if (!file)
@@ -158,7 +212,6 @@ export function compile(files: Files) {
 globalThis.addEventListener('message', async ({ data }) => {
   try {
     const entryData = compile(data)
-    console.log('entryData: ', entryData)
     compileResMap.set(FILE_NAME_MAP.ENTRY_FILE_NAME, entryData)
     globalThis.postMessage({
       type: 'COMPILED_CODE',

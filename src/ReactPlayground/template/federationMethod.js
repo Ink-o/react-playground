@@ -1,10 +1,5 @@
-const remotesMap = {
-  mf_test: {
-    url: 'http://localhost:3000/remoteEntry.js',
-    format: 'var',
-    from: 'webpack',
-  },
-}
+const remotesMap = `{remoteMap}`
+
 async function loadJS(url, fn) {
   const resolvedUrl = typeof url === 'function' ? await url() : url
   const script = document.createElement('script')

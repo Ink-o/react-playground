@@ -4,6 +4,7 @@ import App from './template/App.tsx?raw'
 import externalMap from './template/externalMap.json?raw'
 import importMap from './template/import-map.json?raw'
 import main from './template/main.tsx?raw'
+import remotesMap from './template/remotesMap.json?raw'
 import { fileName2Language } from './utils'
 
 export enum FILE_NAME_MAP {
@@ -15,6 +16,8 @@ export enum FILE_NAME_MAP {
   ENTRY_FILE_NAME = 'main.tsx',
   /** external 资源 */
   EXTERNAL_NAME = 'externalMap.json',
+  /** remotes 资源 */
+  REMOTES_NAME = 'remotes.json',
 }
 
 export interface ExternalMap {
@@ -51,5 +54,10 @@ export const initFiles: Files = {
     name: FILE_NAME_MAP.EXTERNAL_NAME,
     language: fileName2Language(FILE_NAME_MAP.EXTERNAL_NAME),
     value: externalMap,
+  },
+  [FILE_NAME_MAP.REMOTES_NAME]: {
+    name: FILE_NAME_MAP.REMOTES_NAME,
+    language: fileName2Language(FILE_NAME_MAP.REMOTES_NAME),
+    value: remotesMap,
   },
 }

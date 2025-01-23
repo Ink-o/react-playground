@@ -1,19 +1,20 @@
 import type { PropsWithChildren } from 'react'
-import { createContext, useEffect, useState } from 'react'
+import { createContext, useEffect, useMemo, useState } from 'react'
 import { initFiles } from './files'
-import { compress, fileName2Language, uncompress } from './utils'
+import { compress, fileName2Language, JSONParse, uncompress } from './utils'
 
 export interface File {
   name: string
   value: string
   language: string
+  jsObject?: object
 }
 
 export interface Files {
   [key: string]: File
 }
 
-export interface PlaygroundContext {
+export interface IPlaygroundContext {
   files: Files
   selectedFileName: string
   setSelectedFileName: (fileName: string) => void
@@ -27,15 +28,16 @@ export interface PlaygroundContext {
 
 export type Theme = 'light' | 'dark'
 
-export const PlaygroundContext = createContext<PlaygroundContext>({
+export const PlaygroundContext = createContext<IPlaygroundContext>({
   selectedFileName: 'App.tsx',
-} as PlaygroundContext)
+} as IPlaygroundContext)
 
 function getFilesFromUrl() {
   let files: Files | undefined
   try {
-    const hash = uncompress(window.location.hash.slice(1))
+    const hash = uncompress(decodeURIComponent(window.location.hash.slice(1)))
     files = JSON.parse(hash)
+    console.log('files: ', files)
   }
   catch (error) {
     console.error(error)
@@ -43,7 +45,7 @@ function getFilesFromUrl() {
   return files
 }
 
-export function PlaygroundProvider(props: PropsWithChildren) {
+export function PlaygroundProvider(props: PropsWithChildren<never>) {
   const { children } = props
   const [files, setFiles] = useState<Files>(getFilesFromUrl() || initFiles)
   const [selectedFileName, setSelectedFileName] = useState('App.tsx')
@@ -82,14 +84,29 @@ export function PlaygroundProvider(props: PropsWithChildren) {
 
   // 文件内容同步 url
   useEffect(() => {
+    console.log('文件更新')
     const hash = compress(JSON.stringify(files))
+    console.log('hash: ', hash)
+    console.log('hash: ', uncompress(hash))
     window.location.hash = encodeURIComponent(hash)
+  }, [files])
+
+  const actualFiles = useMemo(() => {
+    console.log('重新赋值了')
+    const newFiles: Files = {}
+    return Object.entries(files).reduce((pre, [k, v]) => {
+      pre[k] = {
+        ...v,
+        jsObject: v.language === 'json' ? JSONParse(v.value) : v.value,
+      }
+      return pre
+    }, newFiles)
   }, [files])
 
   return (
     <PlaygroundContext.Provider
       value={{
-        files,
+        files: actualFiles,
         selectedFileName,
         setSelectedFileName,
         setFiles,
