@@ -37,10 +37,10 @@ function getFilesFromUrl() {
   try {
     const hash = uncompress(decodeURIComponent(window.location.hash.slice(1)))
     files = JSON.parse(hash)
-    console.log('files: ', files)
   }
   catch (error) {
     console.error(error)
+    return undefined
   }
   return files
 }
@@ -84,15 +84,11 @@ export function PlaygroundProvider(props: PropsWithChildren<never>) {
 
   // 文件内容同步 url
   useEffect(() => {
-    console.log('文件更新')
     const hash = compress(JSON.stringify(files))
-    console.log('hash: ', hash)
-    console.log('hash: ', uncompress(hash))
     window.location.hash = encodeURIComponent(hash)
   }, [files])
 
   const actualFiles = useMemo(() => {
-    console.log('重新赋值了')
     const newFiles: Files = {}
     return Object.entries(files).reduce((pre, [k, v]) => {
       pre[k] = {

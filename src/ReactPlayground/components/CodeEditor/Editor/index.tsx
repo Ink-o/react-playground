@@ -26,8 +26,6 @@ export default function Editor(props: Props) {
     // 格式化代码
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ, () => {
       editor.getAction('editor.action.formatDocument')?.run()
-      // let actions = editor.getSupportedActions().map((a) => a.id);
-      // console.log(actions);
     })
 
     // 设置 tsconfig.json支持 jsx

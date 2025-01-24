@@ -1,53 +1,47 @@
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-weight: 400;
-  line-height: 1.5;
-  color: rgb(255 255 255 / 87%);
-  text-rendering: optimizelegibility;
-  text-size-adjust: 100%;
-  background-color: #242424;
-  color-scheme: light dark;
-  font-synthesis: none;
-}
-
 #root {
   max-width: 1280px;
-  padding: 2rem;
   margin: 0 auto;
+  padding: 2rem;
   text-align: center;
 }
-
 body {
-  display: flex;
-  min-width: 320px;
-  min-height: 100vh;
-  margin: 0;
-  place-items: center;
+  background-color: #000;
 }
-
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  color: #fff;
+  font-size: 30px;
+}
+.logo {
+  height: 96px;
+  padding: 24px;
+  will-change: filter;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-button:hover {
-  border-color: #646cff;
-}
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #fff;
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
   }
-
-  button {
-    background-color: #f9f9f9;
+  to {
+    transform: rotate(360deg);
   }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a > .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
 }

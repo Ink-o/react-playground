@@ -9,7 +9,6 @@ export function createATA(onDownloadFile: (code: string, path: string) => void) 
     delegate: {
       // 下载正确的类型包后，会调用这个函数
       receivedFile: (code, path) => {
-        // console.log('自动下载的包', path);
         onDownloadFile(code, path)
       },
     },

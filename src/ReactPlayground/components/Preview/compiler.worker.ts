@@ -118,12 +118,9 @@ function remotesHandle({ modulePath, remoteConfig, path, hasRuntime }: { moduleP
   if (!hasRuntime) {
     // 保持原始字符串中的换行和空格
     const dep = federationDep.replace('`{remoteMap}`', remoteConfig.value)
-    console.log('dep: ', dep)
 
     // 直接将字符串传入 Babel 的 AST 解析器
     const astTemplate = packages.template.default.ast(dep)
-    // console.log('astTemplate: ', packages.generator.default(astTemplate).code)
-    // path.replaceWithMultiple(astTemplate)
     path.insertBefore(astTemplate)
   }
 

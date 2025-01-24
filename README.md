@@ -1,50 +1,53 @@
-# React + TypeScript + Vite
+# React playground
+fork 自神光 React playground
+https://github.com/QuarkGluonPlasma/react-course-code/tree/main/react-playground-project
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# 启动
+pnpm i
 
-Currently, two official plugins are available:
+pnpm dev
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# 改动
 
-## Expanding the ESLint configuration
+1、ModuleFederation 组件引入支持
+2、external 支持
+3、打包 JS 查看
+4、tailwindcss 接入
+5、Vite 改 Rsbuild
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+# externalMap.json 字段说明
+主要用于资源 external
+```json
+{
+  "antd": { // 对应 ts 引入包名
+    "var": "antd", // umd 暴露出的全局变量名
+    "scriptUrl": [ // 对应 js 资源
+      "https://unpkg.com/antd@4.21.5/dist/antd.min.js"
+    ],
+    "styleUrl": [ // 对应 样式资源
+      "https://unpkg.com/antd@4.21.5/dist/antd.min.css"
+    ]
+  }
+}
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+# remotes.json 字段说明
+主要用于配置 ModuleFederation 字段配置
+```json
+{
+  "testCompo": { // 包名
+    "url": "http:localhost:3000/remoteEntry.js", // 对应资源
+    "format": "var", // 格式化类型，目前只支持 var
+    "from": "webpack" // 来源 from，目前只支持 webpack
+  }
+}
+```
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+使用：
+```tsx
+import TestButton from 'testCompo/Button'
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+export default () => {
+  return <TestButton>测试按钮</TestButton>
+}
 ```

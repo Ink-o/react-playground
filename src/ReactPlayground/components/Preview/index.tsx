@@ -6,7 +6,6 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { FILE_NAME_MAP } from '../../files'
 import { PlaygroundContext } from '../../PlaygroundContext'
 import { Message } from '../Message'
-import CompilerWorker from './compiler.worker?worker'
 import iframeRaw from './iframe.html?raw'
 
 interface MessageData {
@@ -80,7 +79,7 @@ export default function Preview() {
     setIframeSrcDoc(getIframeSrcDoc())
     window.addEventListener('message', handleMessage)
     if (!compilerWorkerRef.current) {
-      compilerWorkerRef.current = new CompilerWorker()
+      compilerWorkerRef.current = new Worker(new URL('./compiler.worker.ts', import.meta.url))
       compilerWorkerRef.current.addEventListener('message', ({ data }) => {
         if (data.type === 'COMPILED_CODE') {
           setCompiledCode(data.data.compileResMap.get(FILE_NAME_MAP.ENTRY_FILE_NAME))

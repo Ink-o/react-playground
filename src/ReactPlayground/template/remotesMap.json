@@ -1,6 +1,6 @@
 {
-  "hy_mf_pc": {
-    "url": "https://hy-static-pre.intra.xiaojukeji.com/hy-compo/remoteEntry.js",
+  "testCompo": {
+    "url": "http:localhost:3000/remoteEntry.js",
     "format": "var",
     "from": "webpack"
   }
