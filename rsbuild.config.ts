@@ -24,7 +24,6 @@ export default defineConfig({
           (resource) => {
             resource.request = resource.request.replace(/\?raw/, '')
             resource.request = `!raw-loader!${resource.request}`
-            console.log('resource', resource)
           },
         ),
       )

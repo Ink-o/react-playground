@@ -10,10 +10,16 @@ pnpm dev
 # 改动
 
 1、ModuleFederation 组件引入支持
+
 2、external 支持
+
 3、打包 JS 查看
+
 4、tailwindcss 接入
+
 5、Vite 改 Rsbuild
+
+6、eslint 接入
 
 # externalMap.json 字段说明
 主要用于资源 external
